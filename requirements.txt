@@ -1,6 +1,8 @@
-flask
 nbconvert
 nbformat
 papermill
 gunicorn
 flask-cors
+Flask
+networkx
+matplotlib
