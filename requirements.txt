@@ -1,0 +1,6 @@
+flask
+nbconvert
+nbformat
+papermill
+gunicorn
+flask-cors

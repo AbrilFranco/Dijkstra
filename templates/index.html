@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dijkstra</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+    <div class="container">
+        <h1>Dijkstra </h1>
+        <h3>Introduce tus nodos y distancias</h3>
+
+        <form id="formulario">
+            <div class="input-container">
+                <label for="nodos">Nodos (separados por coma):</label>
+                <input type="text" id="nodos" name="nodos" placeholder="Ej: A,B,C" required />
+            </div>
+
+            <div class="input-container">
+                <label for="conexiones">Aristas y distancias (formato: nodo1,nodo2,distancia):</label>
+                <input type="text" id="conexiones" name="conexiones" placeholder="Ej: A,B,2,B,C,4,C,A,4" required />
+            </div>
+
+            <div class="input-container">
+                <label for="inicio">Nodo de inicio:</label>
+                <input type="text" id="inicio" name="inicio" placeholder="Ej: A" required />
+            </div>
+
+            <div class="input-container">
+                <label for="fin">Nodo de fin:</label>
+                <input type="text" id="fin" name="fin" placeholder="Ej: C" required />
+            </div>
+
+            <button type="submit">Resolver</button>
+        </form>
+
+        <div id="resultados" class="resultados">
+            <h2>Resultados:</h2>
+            <p><strong>Distancia más corta:</strong> <span id="resultado-distancia">nulo</span></p>
+            <p><strong>Ruta más corta:</strong> <span id="resultado-ruta">nulo</span></p>
+
+            <!-- Mostrar la imagen del diagrama -->
+            <h3>Diagrama del Grafo con la Ruta más Corta:</h3>
+            <img id="grafico" src="" alt="Diagrama de la ruta más corta" style="max-width: 100%; height: auto;">
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("formulario").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const nodos = document.getElementById("nodos").value.split(",").map(str => str.trim());
+            const conexionesInput = document.getElementById("conexiones").value.split(",").map(str => str.trim());
+            const conexiones = [];
+            for (let i = 0; i < conexionesInput.length; i += 3) {
+                conexiones.push({
+                    origen: conexionesInput[i],
+                    destino: conexionesInput[i + 1],
+                    peso: conexionesInput[i + 2]
+                });
+            }
+
+            const inicio = document.getElementById("inicio").value.trim();
+            const fin = document.getElementById("fin").value.trim();
+
+            const response = await fetch("/resolver_dijkstra", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    nodos: nodos,
+                    conexiones: conexiones,
+                    inicio: inicio,
+                    fin: fin
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                document.getElementById("resultado-distancia").textContent = data.error;
+                document.getElementById("resultado-ruta").textContent = "nulo";
+            } else {
+                document.getElementById("resultado-distancia").textContent = data.distancia_total;
+                document.getElementById("resultado-ruta").textContent = data.ruta.join(" -> ");
+
+                // Mostrar el gráfico (diagrama) generado
+                document.getElementById("grafico").src = 'data:image/png;base64,' + data.imagen;
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
